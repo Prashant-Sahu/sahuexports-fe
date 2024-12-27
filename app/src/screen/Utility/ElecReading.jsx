@@ -22,7 +22,7 @@ import { AntDesign } from "@expo/vector-icons";
 import FlashMessage from "react-native-flash-message";
 import Footer from "../Common/Footer";
 
-const PngReading = () => {
+const UtilityMainTiles = () => {
   const routerN = useRouter();
   const navigation = useNavigation();
   const appVersion = pkg.version;
@@ -87,7 +87,7 @@ const PngReading = () => {
   }, []);
 
   const handleSubmit = () => {
-    if (!pngConsumption || !rate) {
+    if (!electConsumption || !rate) {
       Alert.alert("Error", "Please fill all fields.");
       return;
     }
@@ -96,7 +96,7 @@ const PngReading = () => {
     // Add navigation or API call logic here
   };
 
-  const [pngConsumption, setPngConsumption] = useState("");
+  const [electConsumption, setElectricityConsumtion] = useState("");
   const [rate, setRate] = useState("");
 
   const todayDate = new Date().toISOString().split("T")[0];
@@ -126,7 +126,7 @@ const PngReading = () => {
             }}
             numberOfLines={1}
           >
-            PNG Reading
+            Electricity Reading
           </Text>
         </View>
         <TouchableOpacity
@@ -150,7 +150,7 @@ const PngReading = () => {
         }}
       >
         <View style={styles.container}>
-          <Text style={styles.header}>Enter the PNG details.</Text>
+          <Text style={styles.header}>Enter the Electricity details.</Text>
 
           <Text style={styles.label}>Date</Text>
           <TextInput
@@ -159,13 +159,13 @@ const PngReading = () => {
             editable={false} // Makes the input read-only
           />
 
-          <Text style={styles.label}>PNG Consumption</Text>
+          <Text style={styles.label}>Electricity Consumption</Text>
           <TextInput
             style={styles.input}
             placeholder="Today's reading"
             keyboardType="numeric" // Numeric input only
-            value={pngConsumption}
-            onChangeText={setPngConsumption}
+            value={electConsumption}
+            onChangeText={setElectricityConsumtion}
           />
 
           <Text style={styles.label}>Rate</Text>
@@ -191,7 +191,7 @@ const PngReading = () => {
   );
 };
 
-export default PngReading;
+export default UtilityMainTiles;
 
 const styles = StyleSheet.create({
   linearGradient: {

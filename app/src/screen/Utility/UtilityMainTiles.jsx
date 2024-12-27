@@ -111,6 +111,8 @@ const UtilityMainTiles = () => {
     } else {
       if (blockId == "PngReading") {
         routerN.push("/src/screen/Utility/PngReading");
+      } else if (blockId == "ElecReading") {
+        routerN.push("/src/screen/Utility/ElecReading");
       } else {
         showMessage({
           description: "Warning message",
@@ -236,7 +238,7 @@ const UtilityMainTiles = () => {
         >
           <View style={styles.grdRow}>
             <TouchableOpacity
-              onPress={() => handledashboardMenu("ElectricityReading")}
+              onPress={() => handledashboardMenu("ElecReading")}
               style={{ flex: 1, marginRight: 0, flexDirection: "column" }}
             >
               <View style={[styles.linearGradient]}>
