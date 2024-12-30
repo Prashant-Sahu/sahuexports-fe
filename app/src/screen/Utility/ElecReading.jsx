@@ -22,7 +22,7 @@ import { AntDesign } from "@expo/vector-icons";
 import FlashMessage from "react-native-flash-message";
 import Footer from "../Common/Footer";
 
-const UtilityMainTiles = () => {
+const ElecReading = () => {
   const routerN = useRouter();
   const navigation = useNavigation();
   const appVersion = pkg.version;
@@ -90,9 +90,16 @@ const UtilityMainTiles = () => {
     if (!electConsumption || !rate) {
       Alert.alert("Error", "Please fill all fields.");
       return;
+    } else {
+      // routerN.push("/src/screen/ReviewScreens/ElecSubmit", {
+      //   electConsumption,
+      //   rate,
+      // });
+      navigation.navigate("src/screen/ReviewScreens/ElecSubmit", {
+        electConsumption,
+        rate,
+      });
     }
-
-    Alert.alert("Success", "Details submitted successfully.");
     // Add navigation or API call logic here
   };
 
@@ -191,7 +198,7 @@ const UtilityMainTiles = () => {
   );
 };
 
-export default UtilityMainTiles;
+export default ElecReading;
 
 const styles = StyleSheet.create({
   linearGradient: {

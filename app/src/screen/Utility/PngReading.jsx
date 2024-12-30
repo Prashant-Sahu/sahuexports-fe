@@ -90,9 +90,12 @@ const PngReading = () => {
     if (!pngConsumption || !rate) {
       Alert.alert("Error", "Please fill all fields.");
       return;
+    } else {
+      navigation.navigate("src/screen/ReviewScreens/PngSubmit", {
+        pngConsumption,
+        rate,
+      });
     }
-
-    Alert.alert("Success", "Details submitted successfully.");
     // Add navigation or API call logic here
   };
 
