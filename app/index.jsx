@@ -46,56 +46,58 @@ const index = () => {
   };
 
   const validateUser = async () => {
-    const apiUrl = "http://192.168.0.60:8080/api/user/v1/login";
-    const body = {
-      ID: loginId,
-      password: loginPassword,
-    };
-    console.log("Login Request Body:", JSON.stringify(body));
+    router.replace("/src/screen/Organization/OrganizationSelect");
 
-    setIsloading(true);
-    try {
-      const res = await axios.post(apiUrl, body);
-      console.log("Server Response: ", JSON.stringify(res.data));
+    // const apiUrl = "http://192.168.0.60:8080/api/user/v1/login";
+    // const body = {
+    //   ID: loginId,
+    //   password: loginPassword,
+    // };
+    // console.log("Login Request Body:", JSON.stringify(body));
 
-      if (res.data === "User authenticated successfully") {
-        console.log("User authenticated successfully");
+    // setIsloading(true);
+    // try {
+    //   const res = await axios.post(apiUrl, body);
+    //   console.log("Server Response: ", JSON.stringify(res.data));
 
-        await clearAsyncStorage();
+    //   if (res.data === "User authenticated successfully") {
+    //     console.log("User authenticated successfully");
 
-        const userInfo = { id: loginId, authenicated: true };
-        const userAccInfo = { permission: ["basic"] };
+    //     await clearAsyncStorage();
 
-        await AsyncStorage.setItem("userInfo", JSON.stringify(userInfo));
-        await AsyncStorage.setItem("userAccInfo", JSON.stringify(userAccInfo));
+    //     const userInfo = { id: loginId, authenicated: true };
+    //     const userAccInfo = { permission: ["basic"] };
 
-        console.log("User Info:", JSON.stringify(userInfo));
-        console.log("User Account Info:", JSON.stringify(userAccInfo));
+    //     await AsyncStorage.setItem("userInfo", JSON.stringify(userInfo));
+    //     await AsyncStorage.setItem("userAccInfo", JSON.stringify(userAccInfo));
 
-        router.replace("/src/screen/Organization/OrganizationSelect");
-      } else {
-        console.log("Login failed", res.data.message);
-        showMessage({
-          message: "Login failed",
-          description: res.data.message || "Login Failed. Please try again.",
-          type: "danger",
-          backgroundColor: "#dc3545",
-          color: "#FFFFFF",
-        });
-      }
-    } catch (error) {
-      setIsloading(false);
-      console.error("Error during login:", error);
-      showMessage({
-        message: "Error",
-        description: "Login failed. Please try again.",
-        type: "danger",
-        backgroundColor: "#dc3545",
-        color: "#FFFFFF",
-      });
-    } finally {
-      setIsloading(false);
-    }
+    //     console.log("User Info:", JSON.stringify(userInfo));
+    //     console.log("User Account Info:", JSON.stringify(userAccInfo));
+
+    //     router.replace("/src/screen/Organization/OrganizationSelect");
+    //   } else {
+    //     console.log("Login failed", res.data.message);
+    //     showMessage({
+    //       message: "Login failed",
+    //       description: res.data.message || "Login Failed. Please try again.",
+    //       type: "danger",
+    //       backgroundColor: "#dc3545",
+    //       color: "#FFFFFF",
+    //     });
+    //   }
+    // } catch (error) {
+    //   setIsloading(false);
+    //   console.error("Error during login:", error);
+    //   showMessage({
+    //     message: "Error",
+    //     description: "Login failed. Please try again.",
+    //     type: "danger",
+    //     backgroundColor: "#dc3545",
+    //     color: "#FFFFFF",
+    //   });
+    // } finally {
+    //   setIsloading(false);
+    // }
   };
 
   const setAsyncStorage = async (key, data) => {
