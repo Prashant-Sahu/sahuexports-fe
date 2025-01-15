@@ -21,6 +21,8 @@ import { StatusBar } from "expo-status-bar";
 import { AntDesign } from "@expo/vector-icons";
 import FlashMessage from "react-native-flash-message";
 import Footer from "../Common/Footer";
+import axios from "axios";
+import {BaseUrl} from "../../../src/utils/serviceConfig";
 
 const ElecReading = () => {
   const routerN = useRouter();

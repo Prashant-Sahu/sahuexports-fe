@@ -17,6 +17,7 @@ import * as SplashScreen from "expo-splash-screen";
 import { useRouter } from "expo-router";
 import * as Device from "expo-device";
 import FlashMessage from "react-native-flash-message";
+import {BaseUrl} from "./src/utils/serviceConfig";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -46,58 +47,76 @@ const index = () => {
   };
 
   const validateUser = async () => {
-    router.replace("/src/screen/Organization/OrganizationSelect");
+    //router.replace("/src/screen/Organization/OrganizationSelect");
 
     // const apiUrl = "http://192.168.0.60:8080/api/user/v1/login";
-    // const body = {
-    //   ID: loginId,
-    //   password: loginPassword,
-    // };
+    const body = {
+      username: loginId,
+      password: loginPassword,
+    };
     // console.log("Login Request Body:", JSON.stringify(body));
 
-    // setIsloading(true);
-    // try {
-    //   const res = await axios.post(apiUrl, body);
-    //   console.log("Server Response: ", JSON.stringify(res.data));
+    setIsloading(true);
+    try {
+      const apiUrl=BaseUrl;
+      const res = await axios.post(apiUrl+"api/auth/v1/login", body);
+      console.log("Server Response: ", JSON.stringify(res.data));
 
-    //   if (res.data === "User authenticated successfully") {
-    //     console.log("User authenticated successfully");
+      if (res.data.status === "ok") {
+        console.log("User authenticated successfully");
 
-    //     await clearAsyncStorage();
+        await clearAsyncStorage();
 
-    //     const userInfo = { id: loginId, authenicated: true };
-    //     const userAccInfo = { permission: ["basic"] };
+       var userDetails=res.data.user;
 
-    //     await AsyncStorage.setItem("userInfo", JSON.stringify(userInfo));
-    //     await AsyncStorage.setItem("userAccInfo", JSON.stringify(userAccInfo));
+        await AsyncStorage.setItem("userId", userDetails.userId.toString());
+        await AsyncStorage.setItem("username", userDetails.username);
+        await AsyncStorage.setItem("firstName", userDetails.firstName);
+        await AsyncStorage.setItem("authenticationToken", res.data.token);
+        if(userDetails.lastName!=null && userDetails.lastName!=undefined)
+        {
+            await AsyncStorage.setItem("lastName", userDetails.lastName);
+        }
+        if(userDetails.email!=null && userDetails.email!=undefined)
+          {
+        await AsyncStorage.setItem("email", userDetails.email);
+          }
+          if(userDetails.phoneNumber!=null && userDetails.phoneNumber!=undefined)
+            {
+        await AsyncStorage.setItem("phoneNumber", userDetails.phoneNumber);
+            }
+            if(userDetails.companyName!=null && userDetails.companyName!=undefined)
+              {
+        await AsyncStorage.setItem("companyName", userDetails.companyName);
+              }
 
-    //     console.log("User Info:", JSON.stringify(userInfo));
-    //     console.log("User Account Info:", JSON.stringify(userAccInfo));
+        console.log("User Info:",userDetails.firstName);
 
-    //     router.replace("/src/screen/Organization/OrganizationSelect");
-    //   } else {
-    //     console.log("Login failed", res.data.message);
-    //     showMessage({
-    //       message: "Login failed",
-    //       description: res.data.message || "Login Failed. Please try again.",
-    //       type: "danger",
-    //       backgroundColor: "#dc3545",
-    //       color: "#FFFFFF",
-    //     });
-    //   }
-    // } catch (error) {
-    //   setIsloading(false);
-    //   console.error("Error during login:", error);
-    //   showMessage({
-    //     message: "Error",
-    //     description: "Login failed. Please try again.",
-    //     type: "danger",
-    //     backgroundColor: "#dc3545",
-    //     color: "#FFFFFF",
-    //   });
-    // } finally {
-    //   setIsloading(false);
-    // }
+        router.replace("/src/screen/Drawer/DrawerNavigator");
+
+      } else {
+        console.log("Login failed", res.data.message);
+        showMessage({
+          message: "Login failed",
+          description: res.data.message || "Login Failed. Please try again.",
+          type: "danger",
+          backgroundColor: "#dc3545",
+          color: "#FFFFFF",
+        });
+      }
+    } catch (error) {
+      setIsloading(false);
+      console.error("Error during login:", error);
+      showMessage({
+        message: "Error",
+        description: "Login failed. Please try again.",
+        type: "danger",
+        backgroundColor: "#dc3545",
+        color: "#FFFFFF",
+      });
+    } finally {
+      setIsloading(false);
+    }
   };
 
   const setAsyncStorage = async (key, data) => {
