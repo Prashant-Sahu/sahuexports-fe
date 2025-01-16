@@ -1,12 +1,19 @@
-import React from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import React,{useEffect, useState} from "react";
 import { View, Text, TouchableOpacity, StyleSheet, Alert } from "react-native";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import Footer from "../Common/Footer";
+import axios from "axios";
+import {BaseUrl} from "../../../src/utils/serviceConfig";
+import FlashMessage from "react-native-flash-message";
+import { router,useRouter } from "expo-router";
+import { showMessage } from "react-native-flash-message";
 
 const ElecSubmit = () => {
   const navigation = useNavigation();
   const route = useRoute();
   const { pngConsumption, rate } = route.params;
+  const [isLoading, setIsloading] = useState(false);
 
   console.log("PNG Consumption: ", pngConsumption);
 
@@ -16,10 +23,67 @@ const ElecSubmit = () => {
     navigation.goBack();
   };
 
-  const handleFinalSubmit = () => {
+  const handleFinalSubmit = async () => {
     // Add database submission logic here
-    Alert.alert("Success", "Data submitted successfully.");
+    //Alert.alert("Success", "Data submitted successfully.");
     // Navigate to another screen if needed
+
+    const authenticationToken = await AsyncStorage.getItem('authenticationToken');
+    const body = {
+      "companyId":1,
+      "branchId":1,
+      "moduleId":9,
+      "reading":pngConsumption,
+      "rate":rate,
+      "unit":"SCM",
+      "recordDate":new Date().toISOString()
+    };
+    setIsloading(true);
+    try {
+      const apiUrl=BaseUrl;
+      const res = await axios.post(apiUrl+"api/utility/v1/saveUtilityData", body,{ headers: { "Authorization": "Bearer " + authenticationToken} });
+      console.log("Server Response: ", JSON.stringify(res.data));
+
+      if (res.data.status === "ok") 
+        {
+          showMessage({
+            description: 'Electricity Consumption',
+            message: res.data.errMsg,
+            type: "success",
+            backgroundColor: '#ffc107',
+            color: '#000000',
+            fontFamily: 'Poppins-Bold',
+            fontSize: 50
+          });
+        console.log("Electricity Data Submited successfully");
+        setTimeout(() => 
+          {
+            router.replace("/src/screen/Utility/PngReading");
+        }, 2000);
+      } else {
+        console.log("Login failed", res.data.errMsg);
+        showMessage({
+          message: res.data.errMsg,
+          description: "Error on PNG Data Submit",
+          type: "danger",
+          backgroundColor: "#dc3545",
+          color: "#FFFFFF",
+        });
+      }
+    } catch (error) {
+      setIsloading(false);
+      console.error("Error during login:", error);
+      showMessage({
+        message: error,
+        description: "Error on PNG Data Submit",
+        type: "danger",
+        backgroundColor: "#dc3545",
+        color: "#FFFFFF",
+      });
+    } finally {
+      setIsloading(false);
+    }
+
   };
 
   return (
@@ -27,8 +91,8 @@ const ElecSubmit = () => {
       <View style={styles.container}>
         <Text style={styles.header}>Review PNG Details</Text>
 
-        <Text style={styles.label}>PNG Consumption: {pngConsumption} kWh</Text>
-        <Text style={styles.label}>Rate: {rate} per kWh</Text>
+        <Text style={styles.label}>PNG Consumption: {pngConsumption} SCM</Text>
+        <Text style={styles.label}>Rate: {rate} per SCM</Text>
         <Text style={styles.label}>Total Cost: ${totalCost.toFixed(2)}</Text>
 
         <TouchableOpacity style={styles.buttonContainer} onPress={handleEdit}>
@@ -43,6 +107,7 @@ const ElecSubmit = () => {
         </TouchableOpacity>
       </View>
       <Footer />
+      <FlashMessage position="center" />
     </>
   );
 };

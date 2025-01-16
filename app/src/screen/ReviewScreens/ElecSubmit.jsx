@@ -34,7 +34,9 @@ const ElecSubmit = () => {
       "branchId":1,
       "moduleId":8,
       "reading":electConsumption,
-      "unit":"Wat"
+      "rate":rate,
+      "unit":"kWh",
+      "recordDate":new Date().toISOString()
     };
     setIsloading(true);
     try {
@@ -46,7 +48,7 @@ const ElecSubmit = () => {
         {
           showMessage({
             description: 'Electricity Consumption',
-            message: "Electricity Data Submited successfully",
+            message: res.data.errMsg,
             type: "success",
             backgroundColor: '#ffc107',
             color: '#000000',

@@ -68,6 +68,8 @@ const ElecReading = () => {
     );
 
     getdeviceId();
+    loadExistingData();
+
     const backAction = () => {
       Alert.alert("Hold on!", "Are you sure you exit from this app?", [
         {
@@ -109,6 +111,67 @@ const ElecReading = () => {
   const [rate, setRate] = useState("");
 
   const todayDate = new Date().toISOString().split("T")[0];
+  const [isLoading, setIsloading] = useState(false);
+
+  const loadExistingData = async () => {
+    
+    // Add database submission logic here
+    //Alert.alert("Success", "Data submitted successfully.");
+    // Navigate to another screen if needed
+    const authenticationToken = await AsyncStorage.getItem('authenticationToken');
+    const body = {
+      "companyId":1,
+      "branchId":1,
+      "moduleId":8,
+      "recordDate":new Date().toISOString()
+    };
+    setIsloading(true);
+    try {
+      await setElectricityConsumtion('0');
+      await setRate('0');
+
+      const apiUrl=BaseUrl;
+      console.log(`Requet Body ${JSON.stringify(body)}`);
+      const res = await axios.post(apiUrl+"api/utility/v1/getUtilityData", body,{ headers: { "Authorization": "Bearer " + authenticationToken} });
+      console.log("Server Response: ", JSON.stringify(res.data));
+
+      if (res.data.status === "ok") 
+        {
+          var utilityData=res.data.utility;
+          if(utilityData.reading!=null && utilityData.reading!=undefined && parseFloat(utilityData.reading)>0)
+          {
+              await setElectricityConsumtion(utilityData.reading);
+          }
+          if(utilityData.rate!=null && utilityData.rate!=undefined && parseFloat(utilityData.rate)>0)
+          {
+              await setRate(utilityData.rate);
+          }
+        console.log("Electricity Data has been fetched successfully");
+      } else {
+        console.log("Login failed", res.data.errMsg);
+        showMessage({
+          message: "Login failed",
+          description: res.data.errMsg || "Login Failed. Please try again.",
+          type: "danger",
+          backgroundColor: "#dc3545",
+          color: "#FFFFFF",
+        });
+      }
+    } catch (error) {
+      setIsloading(false);
+      console.error("Error during login:", error);
+      showMessage({
+        message: "Error",
+        description: "Login failed. Please try again.",
+        type: "danger",
+        backgroundColor: "#dc3545",
+        color: "#FFFFFF",
+      });
+    } finally {
+      setIsloading(false);
+    }
+
+  };
 
   return (
     <>
@@ -173,6 +236,7 @@ const ElecReading = () => {
             style={styles.input}
             placeholder="Today's reading"
             keyboardType="numeric" // Numeric input only
+            inputMode="numeric"
             value={electConsumption}
             onChangeText={setElectricityConsumtion}
           />
@@ -182,6 +246,7 @@ const ElecReading = () => {
             style={styles.input}
             placeholder="Free Filled (7 by default)"
             keyboardType="numeric" // Numeric input only
+            inputMode="numeric"
             value={rate}
             onChangeText={setRate}
           />

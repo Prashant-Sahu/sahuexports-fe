@@ -21,6 +21,9 @@ import { StatusBar } from "expo-status-bar";
 import { AntDesign } from "@expo/vector-icons";
 import FlashMessage from "react-native-flash-message";
 import Footer from "../Common/Footer";
+import axios from "axios";
+import {BaseUrl} from "../../../src/utils/serviceConfig";
+
 
 const PngReading = () => {
   const routerN = useRouter();
@@ -30,6 +33,8 @@ const PngReading = () => {
   const [clientName, setclientName] = useState(null);
   const [userName, setUserName] = useState(null);
   const [compCoed, setcompCoed] = useState(null);
+  const [isLoading, setIsloading] = useState(false);
+  
 
   const colors = [
     "rgba(26, 147, 220, 0.8)",
@@ -66,6 +71,7 @@ const PngReading = () => {
     );
 
     getdeviceId();
+    loadExistingData();
     const backAction = () => {
       Alert.alert("Hold on!", "Are you sure you exit from this app?", [
         {
@@ -103,6 +109,66 @@ const PngReading = () => {
   const [rate, setRate] = useState("");
 
   const todayDate = new Date().toISOString().split("T")[0];
+
+  const loadExistingData = async () => {
+    
+    // Add database submission logic here
+    //Alert.alert("Success", "Data submitted successfully.");
+    // Navigate to another screen if needed
+    const authenticationToken = await AsyncStorage.getItem('authenticationToken');
+    const body = {
+      "companyId":1,
+      "branchId":1,
+      "moduleId":9,
+      "recordDate":new Date().toISOString()
+    };
+    setIsloading(true);
+    try {
+      await setPngConsumption('0');
+      await setRate('0');
+
+      const apiUrl=BaseUrl;
+      console.log(`Requet Body ${JSON.stringify(body)}`);
+      const res = await axios.post(apiUrl+"api/utility/v1/getUtilityData", body,{ headers: { "Authorization": "Bearer " + authenticationToken} });
+      console.log("Server Response: ", JSON.stringify(res.data));
+
+      if (res.data.status === "ok") 
+        {
+          var utilityData=res.data.utility;
+          if(utilityData.reading!=null && utilityData.reading!=undefined && parseFloat(utilityData.reading)>0)
+          {
+              await setPngConsumption(utilityData.reading);
+          }
+          if(utilityData.rate!=null && utilityData.rate!=undefined && parseFloat(utilityData.rate)>0)
+          {
+              await setRate(utilityData.rate);
+          }
+        console.log("Electricity Data has been fetched successfully");
+      } else {
+        console.log("Login failed", res.data.errMsg);
+        showMessage({
+          message: "Error",
+          description: res.data.errMsg,
+          type: "danger",
+          backgroundColor: "#dc3545",
+          color: "#FFFFFF",
+        });
+      }
+    } catch (error) {
+      setIsloading(false);
+      console.error("Error during login:", error);
+      showMessage({
+        message: "Error",
+        description: "No Data Found",
+        type: "danger",
+        backgroundColor: "#dc3545",
+        color: "#FFFFFF",
+      });
+    } finally {
+      setIsloading(false);
+    }
+
+  };
 
   return (
     <>
