@@ -43,11 +43,8 @@ const ElecSubmit = () => {
       const apiUrl=BaseUrl;
       const res = await axios.post(apiUrl+"api/utility/v1/saveUtilityData", body,{ headers: { "Authorization": "Bearer " + authenticationToken} });
       console.log("Server Response: ", JSON.stringify(res.data));
-
-      if (res.data.status === "ok") 
-        {
           showMessage({
-            description: 'Electricity Consumption',
+            description: 'PNG Consumption',
             message: res.data.errMsg,
             type: "success",
             backgroundColor: '#ffc107',
@@ -60,22 +57,13 @@ const ElecSubmit = () => {
           {
             router.replace("/src/screen/Utility/PngReading");
         }, 2000);
-      } else {
-        console.log("Login failed", res.data.errMsg);
-        showMessage({
-          message: res.data.errMsg,
-          description: "Error on PNG Data Submit",
-          type: "danger",
-          backgroundColor: "#dc3545",
-          color: "#FFFFFF",
-        });
-      }
+      
     } catch (error) {
       setIsloading(false);
       console.error("Error during login:", error);
       showMessage({
         message: error,
-        description: "Error on PNG Data Submit",
+        description: "PNG Consumption",
         type: "danger",
         backgroundColor: "#dc3545",
         color: "#FFFFFF",

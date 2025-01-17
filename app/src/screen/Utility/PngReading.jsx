@@ -93,7 +93,7 @@ const PngReading = () => {
   }, []);
 
   const handleSubmit = () => {
-    if (!pngConsumption || !rate) {
+    if (!pngConsumption || !rate || pngConsumption=='0') {
       Alert.alert("Error", "Please fill all fields.");
       return;
     } else {
@@ -125,45 +125,38 @@ const PngReading = () => {
     setIsloading(true);
     try {
       await setPngConsumption('0');
-      await setRate('0');
+      await setRate('70');
 
       const apiUrl=BaseUrl;
       console.log(`Requet Body ${JSON.stringify(body)}`);
       const res = await axios.post(apiUrl+"api/utility/v1/getUtilityData", body,{ headers: { "Authorization": "Bearer " + authenticationToken} });
       console.log("Server Response: ", JSON.stringify(res.data));
 
-      if (res.data.status === "ok") 
-        {
+    
           var utilityData=res.data.utility;
           if(utilityData.reading!=null && utilityData.reading!=undefined && parseFloat(utilityData.reading)>0)
           {
               await setPngConsumption(utilityData.reading);
           }
-          if(utilityData.rate!=null && utilityData.rate!=undefined && parseFloat(utilityData.rate)>0)
-          {
-              await setRate(utilityData.rate);
-          }
-        console.log("Electricity Data has been fetched successfully");
-      } else {
-        console.log("Login failed", res.data.errMsg);
-        showMessage({
-          message: "Error",
-          description: res.data.errMsg,
-          type: "danger",
-          backgroundColor: "#dc3545",
-          color: "#FFFFFF",
-        });
-      }
+          // if(utilityData.rate!=null && utilityData.rate!=undefined && parseFloat(utilityData.rate)>0)
+          // {
+          //     await setRate(utilityData.rate);
+          // }
+        console.log("PNG Data has been fetched successfully");
+     
     } catch (error) {
       setIsloading(false);
       console.error("Error during login:", error);
-      showMessage({
-        message: "Error",
-        description: "No Data Found",
-        type: "danger",
-        backgroundColor: "#dc3545",
-        color: "#FFFFFF",
-      });
+      // showMessage({
+      //   message: "Error",
+      //   description: "No Data Found",
+      //   type: "danger",
+      //   backgroundColor: "#dc3545",
+      //   color: "#FFFFFF",
+      // });
+      if (error.response.status == 401) {
+        handleLogout();
+      }
     } finally {
       setIsloading(false);
     }
@@ -244,6 +237,7 @@ const PngReading = () => {
             keyboardType="numeric" // Numeric input only
             value={rate}
             onChangeText={setRate}
+            editable={false} selectTextOnFocus={false}
           />
 
           <TouchableOpacity

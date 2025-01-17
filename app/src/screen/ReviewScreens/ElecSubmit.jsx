@@ -44,8 +44,7 @@ const ElecSubmit = () => {
       const res = await axios.post(apiUrl+"api/utility/v1/saveUtilityData", body,{ headers: { "Authorization": "Bearer " + authenticationToken} });
       console.log("Server Response: ", JSON.stringify(res.data));
 
-      if (res.data.status === "ok") 
-        {
+    
           showMessage({
             description: 'Electricity Consumption',
             message: res.data.errMsg,
@@ -60,22 +59,12 @@ const ElecSubmit = () => {
           {
             router.replace("/src/screen/Utility/ElecReading");
         }, 2000);
-      } else {
-        console.log("Login failed", res.data.errMsg);
-        showMessage({
-          message: "Login failed",
-          description: res.data.errMsg || "Login Failed. Please try again.",
-          type: "danger",
-          backgroundColor: "#dc3545",
-          color: "#FFFFFF",
-        });
-      }
     } catch (error) {
       setIsloading(false);
       console.error("Error during login:", error);
       showMessage({
-        message: "Error",
-        description: "Login failed. Please try again.",
+        message: res.data.errMsg,
+        description: "Electricity Consumption",
         type: "danger",
         backgroundColor: "#dc3545",
         color: "#FFFFFF",

@@ -91,20 +91,15 @@ const ElecReading = () => {
   }, []);
 
   const handleSubmit = () => {
-    if (!electConsumption || !rate) {
+    if (!electConsumption || !rate || electConsumption=='0') {0
       Alert.alert("Error", "Please fill all fields.");
       return;
     } else {
-      // routerN.push("/src/screen/ReviewScreens/ElecSubmit", {
-      //   electConsumption,
-      //   rate,
-      // });
       navigation.navigate("src/screen/ReviewScreens/ElecSubmit", {
         electConsumption,
         rate,
       });
     }
-    // Add navigation or API call logic here
   };
 
   const [electConsumption, setElectricityConsumtion] = useState("");
@@ -114,10 +109,6 @@ const ElecReading = () => {
   const [isLoading, setIsloading] = useState(false);
 
   const loadExistingData = async () => {
-    
-    // Add database submission logic here
-    //Alert.alert("Success", "Data submitted successfully.");
-    // Navigate to another screen if needed
     const authenticationToken = await AsyncStorage.getItem('authenticationToken');
     const body = {
       "companyId":1,
@@ -128,45 +119,30 @@ const ElecReading = () => {
     setIsloading(true);
     try {
       await setElectricityConsumtion('0');
-      await setRate('0');
+      await setRate('50');
 
       const apiUrl=BaseUrl;
       console.log(`Requet Body ${JSON.stringify(body)}`);
       const res = await axios.post(apiUrl+"api/utility/v1/getUtilityData", body,{ headers: { "Authorization": "Bearer " + authenticationToken} });
       console.log("Server Response: ", JSON.stringify(res.data));
 
-      if (res.data.status === "ok") 
-        {
+      
           var utilityData=res.data.utility;
           if(utilityData.reading!=null && utilityData.reading!=undefined && parseFloat(utilityData.reading)>0)
           {
               await setElectricityConsumtion(utilityData.reading);
           }
-          if(utilityData.rate!=null && utilityData.rate!=undefined && parseFloat(utilityData.rate)>0)
-          {
-              await setRate(utilityData.rate);
-          }
+          // if(utilityData.rate!=null && utilityData.rate!=undefined && parseFloat(utilityData.rate)>0)
+          // {
+          //     await setRate(utilityData.rate);
+          // }
         console.log("Electricity Data has been fetched successfully");
-      } else {
-        console.log("Login failed", res.data.errMsg);
-        showMessage({
-          message: "Login failed",
-          description: res.data.errMsg || "Login Failed. Please try again.",
-          type: "danger",
-          backgroundColor: "#dc3545",
-          color: "#FFFFFF",
-        });
-      }
     } catch (error) {
       setIsloading(false);
+      if (error.response.status == 401) {
+        handleLogout();
+      }
       console.error("Error during login:", error);
-      showMessage({
-        message: "Error",
-        description: "Login failed. Please try again.",
-        type: "danger",
-        backgroundColor: "#dc3545",
-        color: "#FFFFFF",
-      });
     } finally {
       setIsloading(false);
     }
@@ -249,6 +225,7 @@ const ElecReading = () => {
             inputMode="numeric"
             value={rate}
             onChangeText={setRate}
+            editable={false} selectTextOnFocus={false}
           />
 
           <TouchableOpacity
@@ -275,9 +252,6 @@ const styles = StyleSheet.create({
     paddingRight: 2,
     padding: 0,
     borderRadius: 0,
-
-    //borderColor:'red',
-    //borderWidth:2,
     justifyContent: "center",
     alignItems: "center",
     alignContent: "center",
