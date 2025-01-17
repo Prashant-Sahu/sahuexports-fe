@@ -21,8 +21,10 @@ import { StatusBar } from "expo-status-bar";
 import { AntDesign } from "@expo/vector-icons";
 import FlashMessage from "react-native-flash-message";
 import Footer from "../Common/Footer";
+import axios from "axios";
+import {BaseUrl} from "../../../src/utils/serviceConfig";
 
-const UtilityMainTiles = () => {
+const ElecReading = () => {
   const routerN = useRouter();
   const navigation = useNavigation();
   const appVersion = pkg.version;
@@ -66,6 +68,8 @@ const UtilityMainTiles = () => {
     );
 
     getdeviceId();
+    loadExistingData();
+
     const backAction = () => {
       Alert.alert("Hold on!", "Are you sure you exit from this app?", [
         {
@@ -87,19 +91,63 @@ const UtilityMainTiles = () => {
   }, []);
 
   const handleSubmit = () => {
-    if (!electConsumption || !rate) {
+    if (!electConsumption || !rate || electConsumption=='0') {0
       Alert.alert("Error", "Please fill all fields.");
       return;
+    } else {
+      navigation.navigate("src/screen/ReviewScreens/ElecSubmit", {
+        electConsumption,
+        rate,
+      });
     }
-
-    Alert.alert("Success", "Details submitted successfully.");
-    // Add navigation or API call logic here
   };
 
   const [electConsumption, setElectricityConsumtion] = useState("");
   const [rate, setRate] = useState("");
 
   const todayDate = new Date().toISOString().split("T")[0];
+  const [isLoading, setIsloading] = useState(false);
+
+  const loadExistingData = async () => {
+    const authenticationToken = await AsyncStorage.getItem('authenticationToken');
+    const body = {
+      "companyId":1,
+      "branchId":1,
+      "moduleId":8,
+      "recordDate":new Date().toISOString()
+    };
+    setIsloading(true);
+    try {
+      await setElectricityConsumtion('0');
+      await setRate('50');
+
+      const apiUrl=BaseUrl;
+      console.log(`Requet Body ${JSON.stringify(body)}`);
+      const res = await axios.post(apiUrl+"api/utility/v1/getUtilityData", body,{ headers: { "Authorization": "Bearer " + authenticationToken} });
+      console.log("Server Response: ", JSON.stringify(res.data));
+
+      
+          var utilityData=res.data.utility;
+          if(utilityData.reading!=null && utilityData.reading!=undefined && parseFloat(utilityData.reading)>0)
+          {
+              await setElectricityConsumtion(utilityData.reading);
+          }
+          // if(utilityData.rate!=null && utilityData.rate!=undefined && parseFloat(utilityData.rate)>0)
+          // {
+          //     await setRate(utilityData.rate);
+          // }
+        console.log("Electricity Data has been fetched successfully");
+    } catch (error) {
+      setIsloading(false);
+      if (error.response.status == 401) {
+        handleLogout();
+      }
+      console.error("Error during login:", error);
+    } finally {
+      setIsloading(false);
+    }
+
+  };
 
   return (
     <>
@@ -164,6 +212,7 @@ const UtilityMainTiles = () => {
             style={styles.input}
             placeholder="Today's reading"
             keyboardType="numeric" // Numeric input only
+            inputMode="numeric"
             value={electConsumption}
             onChangeText={setElectricityConsumtion}
           />
@@ -173,8 +222,10 @@ const UtilityMainTiles = () => {
             style={styles.input}
             placeholder="Free Filled (7 by default)"
             keyboardType="numeric" // Numeric input only
+            inputMode="numeric"
             value={rate}
             onChangeText={setRate}
+            editable={false} selectTextOnFocus={false}
           />
 
           <TouchableOpacity
@@ -191,7 +242,7 @@ const UtilityMainTiles = () => {
   );
 };
 
-export default UtilityMainTiles;
+export default ElecReading;
 
 const styles = StyleSheet.create({
   linearGradient: {
@@ -201,9 +252,6 @@ const styles = StyleSheet.create({
     paddingRight: 2,
     padding: 0,
     borderRadius: 0,
-
-    //borderColor:'red',
-    //borderWidth:2,
     justifyContent: "center",
     alignItems: "center",
     alignContent: "center",
